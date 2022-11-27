@@ -80,7 +80,7 @@ function pressedStartButton() {
     drawShade();
     ctx.font = "50px fantasy";
     ctx.fillStyle = "#000000";
-    ctx.fillText(`${count}`, canvas.width / 2 - 20, canvas.height / 2 + 25);
+    ctx.fillText(`${count}`, (canvas.width - 25) / 2 , (canvas.height + 25) / 2);
     if (count-- == 0) {
       clearInterval(innerInterval);
       lanchTheGame();
@@ -109,7 +109,7 @@ function lanchTheGame() {
   }
 
   if (gameOver) {
-    return;
+    drawGameEnd();
   } else {
     requestAnimationFrame(lanchTheGame);
   }
@@ -138,4 +138,12 @@ function paddleCollision() {
       gameOver = true;
     }
   }
+}
+
+function drawGameEnd() {
+  drawShade();
+  ctx.font = "40px fantasy";
+  ctx.fillStyle = "#000000";
+  const text = ctx.measureText("Game Over");
+  ctx.fillText("Game Over", (canvas.width - text.width) / 2 , (canvas.height + 20) / 2);
 }
