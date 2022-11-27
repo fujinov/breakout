@@ -1,11 +1,11 @@
 .container {
-  width: 800px;
+  width: fit-content;
   margin: 20px;
+  text-align: right;
 }
 
 canvas {
   border: 1px solid;
   background-color: rgb(240, 240, 240);
   display: block;
-  margin: 0 auto;
 }

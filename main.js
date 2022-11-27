@@ -40,7 +40,6 @@ const paddle = {
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
-
 function keyDownHandler(e) {
   if (e.key == "Right" || e.key == "ArrowRight") {
     rightPressed = true;
@@ -48,7 +47,6 @@ function keyDownHandler(e) {
     leftPressed = true;
   }
 }
-
 function keyUpHandler(e) {
   if (e.key == "Right" || e.key == "ArrowRight") {
     rightPressed = false;
@@ -57,14 +55,44 @@ function keyUpHandler(e) {
   }
 }
 
-lanchTheGame();
+drawShade();
+function drawShade() {
+  drawAll();
+  ctx.fillStyle = "rgb(238, 238, 238, 0.8)";
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fill();
+}
+
+function drawAll() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  paddle.draw();
+  ball.draw();
+}
+
+startButton.addEventListener("click", pressedStartButton);
+function pressedStartButton() {
+  startButton.style.display = "none";
+
+  let count = 3;
+  drawCountDown();
+  innerInterval = setInterval(drawCountDown, 900);
+  function drawCountDown() {
+    drawShade();
+    ctx.font = "50px fantasy";
+    ctx.fillStyle = "#000000";
+    ctx.fillText(`${count}`, canvas.width / 2 - 20, canvas.height / 2 + 25);
+    if (count-- == 0) {
+      clearInterval(innerInterval);
+      lanchTheGame();
+    }
+  }
+}
 
 function lanchTheGame() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ball.draw();
-  paddle.draw();
+  drawAll();
   wallCollision();
   paddleCollision();
+
   ball.x += ball.dx;
   ball.y += ball.dy;
   if (rightPressed) {
@@ -79,6 +107,7 @@ function lanchTheGame() {
       paddle.x = 0;
     }
   }
+
   if (gameOver) {
     return;
   } else {
