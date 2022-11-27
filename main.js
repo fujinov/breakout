@@ -13,14 +13,6 @@ const ball = {
   radius: 10,
   dx: 3,
   dy: 3,
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
-  },
 };
 
 const paddle = {
@@ -28,15 +20,55 @@ const paddle = {
   width: 75,
   x: (canvas.width - 75) / 2,
   dx: 6,
+};
 
-  draw() {
+const draw = {
+  ball() {
     ctx.beginPath();
-    ctx.rect(this.x, canvas.height - this.height, this.width, this.height);
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
   },
-};
+
+  paddle() {
+    ctx.beginPath();
+    ctx.rect(paddle.x, canvas.height - paddle.height, paddle.width, paddle.height);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+  },
+
+  all() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.ball();
+    this.paddle();
+  },
+  
+  shade() {
+    this.all();
+    ctx.beginPath();
+    ctx.fillStyle = "rgb(238, 238, 238, 0.8)";
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fill();
+    ctx.closePath();
+  },
+
+  count(count) {
+    this.shade();
+    ctx.font = "50px fantasy";
+    ctx.fillStyle = "#000000";
+    ctx.fillText(`${count}`, (canvas.width - 25) / 2 , (canvas.height + 25) / 2);
+  },
+
+  gameOver() {
+    this.shade();
+    ctx.font = "40px fantasy";
+    ctx.fillStyle = "#000000";
+    const text = ctx.measureText("Game Over");
+    ctx.fillText("Game Over", (canvas.width - text.width) / 2 , (canvas.height + 20) / 2);
+  }
+}
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -55,41 +87,27 @@ function keyUpHandler(e) {
   }
 }
 
-drawShade();
-function drawShade() {
-  drawAll();
-  ctx.fillStyle = "rgb(238, 238, 238, 0.8)";
-  ctx.rect(0, 0, canvas.width, canvas.height);
-  ctx.fill();
-}
-
-function drawAll() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  paddle.draw();
-  ball.draw();
-}
+draw.shade();
 
 startButton.addEventListener("click", pressedStartButton);
 function pressedStartButton() {
   startButton.style.display = "none";
 
   let count = 3;
-  drawCountDown();
-  innerInterval = setInterval(drawCountDown, 900);
-  function drawCountDown() {
-    drawShade();
-    ctx.font = "50px fantasy";
-    ctx.fillStyle = "#000000";
-    ctx.fillText(`${count}`, (canvas.width - 25) / 2 , (canvas.height + 25) / 2);
-    if (count-- == 0) {
-      clearInterval(innerInterval);
-      lanchTheGame();
+  draw.count(count);
+  const interval = setInterval(countDown, 800);
+  function countDown() {
+    if (count-- === 1) {
+      clearInterval(interval);
+      lanchTheGame()
+    } else {
+      draw.count(count);
     }
   }
 }
 
 function lanchTheGame() {
-  drawAll();
+  draw.all();
   wallCollision();
   paddleCollision();
 
@@ -109,7 +127,7 @@ function lanchTheGame() {
   }
 
   if (gameOver) {
-    drawGameEnd();
+    draw.gameOver();
   } else {
     requestAnimationFrame(lanchTheGame);
   }
@@ -138,12 +156,4 @@ function paddleCollision() {
       gameOver = true;
     }
   }
-}
-
-function drawGameEnd() {
-  drawShade();
-  ctx.font = "40px fantasy";
-  ctx.fillStyle = "#000000";
-  const text = ctx.measureText("Game Over");
-  ctx.fillText("Game Over", (canvas.width - text.width) / 2 , (canvas.height + 20) / 2);
 }
