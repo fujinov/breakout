@@ -7,20 +7,23 @@ let rightPressed = false;
 let leftPressed = false;
 let gameOver = false;
 
-const ball = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  radius: 10,
-  dx: 3,
-  dy: 3,
-};
+class Ball {
+  x = canvas.width / 2;
+  y = canvas.height / 2;
+  radius = 10;
+  dx = 3;
+  dy = 3;
+}
 
-const paddle = {
-  height: 10,
-  width: 75,
-  x: (canvas.width - 75) / 2,
-  dx: 6,
-};
+class Paddle {
+  height = 10;
+  width = 75;
+  x = (canvas.width - 75) / 2
+  dx = 6;
+}
+
+let ball = new Ball();
+let paddle = new Paddle();
 
 const draw = {
   ball() {
@@ -33,7 +36,12 @@ const draw = {
 
   paddle() {
     ctx.beginPath();
-    ctx.rect(paddle.x, canvas.height - paddle.height, paddle.width, paddle.height);
+    ctx.rect(
+      paddle.x,
+      canvas.height - paddle.height,
+      paddle.width,
+      paddle.height,
+    );
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -44,7 +52,7 @@ const draw = {
     this.ball();
     this.paddle();
   },
-  
+
   shade() {
     this.all();
     ctx.beginPath();
@@ -58,7 +66,7 @@ const draw = {
     this.shade();
     ctx.font = "50px fantasy";
     ctx.fillStyle = "#000000";
-    ctx.fillText(`${count}`, (canvas.width - 25) / 2 , (canvas.height + 25) / 2);
+    ctx.fillText(`${count}`, (canvas.width - 25) / 2, (canvas.height + 25) / 2);
   },
 
   gameOver() {
@@ -66,9 +74,13 @@ const draw = {
     ctx.font = "40px fantasy";
     ctx.fillStyle = "#000000";
     const text = ctx.measureText("Game Over");
-    ctx.fillText("Game Over", (canvas.width - text.width) / 2 , (canvas.height + 20) / 2);
-  }
-}
+    ctx.fillText(
+      "Game Over",
+      (canvas.width - text.width) / 2,
+      (canvas.height + 20) / 2,
+    );
+  },
+};
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -91,7 +103,10 @@ draw.shade();
 
 startButton.addEventListener("click", pressedStartButton);
 function pressedStartButton() {
-  startButton.style.display = "none";
+  startButton.disabled = true;
+  ball = new Ball();
+  paddle = new Paddle();
+  gameOver = false;
 
   let count = 3;
   draw.count(count);
@@ -99,7 +114,7 @@ function pressedStartButton() {
   function countDown() {
     if (count-- === 1) {
       clearInterval(interval);
-      lanchTheGame()
+      lanchTheGame();
     } else {
       draw.count(count);
     }
@@ -128,6 +143,7 @@ function lanchTheGame() {
 
   if (gameOver) {
     draw.gameOver();
+    startButton.disabled = false;
   } else {
     requestAnimationFrame(lanchTheGame);
   }
