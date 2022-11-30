@@ -22,8 +22,32 @@ class Paddle {
   dx = 6;
 }
 
+const brick = {
+  rowCount: 3,
+  columnCount: 5,
+  width: 75,
+  height: 20,
+  padding: 10,
+  offsetTop: 30,
+  offsetLeft: 30,
+
+  list() {
+    const list = [];
+    for (let r = 0; r < this.rowCount; r++) {
+      list[r] = [];
+      for (let c = 0; c < this.columnCount; c++) {
+        const brickX = this.offsetLeft + c * (this.width + this.padding);
+        const brickY = this.offsetTop + r * (this.height + this.padding);
+        list[r][c] = { x: brickX, y: brickY, hp: 1};
+      }
+    }
+    return list;
+  }
+}
+
 let ball = new Ball();
 let paddle = new Paddle();
+let bricks = brick.list();
 
 const draw = {
   ball() {
@@ -47,10 +71,23 @@ const draw = {
     ctx.closePath();
   },
 
+  bricks() {
+    for (const rows of bricks) {
+      for (const row of rows) {
+        ctx.beginPath();
+        ctx.rect(row.x, row.y, brick.width, brick.height);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+  },
+
   all() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.ball();
     this.paddle();
+    this.bricks();
   },
 
   shade() {
