@@ -5,7 +5,9 @@ canvas.height = 360;
 const startButton = document.getElementById("start");
 let rightPressed = false;
 let leftPressed = false;
+let score = 0;
 let gameOver = false;
+let gameClear = false;
 
 class Ball {
   x = canvas.width / 2;
@@ -108,15 +110,40 @@ const draw = {
     ctx.fillText(`${count}`, (canvas.width - 25) / 2, (canvas.height + 25) / 2);
   },
 
-  gameOver() {
+  gameClear() {
+    this.shade();
+    ctx.font = "50px fantasy";
+    ctx.fillStyle = "#000000";
+    const text = ctx.measureText("Game Clear");
+    ctx.fillText(
+      "Game Clear",
+      (canvas.width - text.width) / 2,
+      (canvas.height + 20) / 2,
+      );
+      this._score("#ff0000");
+    },
+    
+    gameOver() {
     this.shade();
     ctx.font = "40px fantasy";
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "#ff0000";
     const text = ctx.measureText("Game Over");
     ctx.fillText(
       "Game Over",
       (canvas.width - text.width) / 2,
       (canvas.height + 20) / 2,
+    );
+    this._score("#000000");
+  },
+
+  _score(color) {
+    ctx.font = "20px fantasy";
+    ctx.fillStyle = color;
+    const text = ctx.measureText(`スコア: ${score}`);
+    ctx.fillText(
+      `スコア: ${score}`,
+      (canvas.width - text.width) / 2,
+      (canvas.height + 7.5) / 2 + 30,
     );
   },
 };
@@ -145,6 +172,9 @@ function pressedStartButton() {
   startButton.disabled = true;
   ball = new Ball();
   paddle = new Paddle();
+  bricks = brick.list();
+  score = 0;
+  gameClear = false;
   gameOver = false;
 
   let count = 3;
@@ -181,9 +211,14 @@ function lanchTheGame() {
     }
   }
 
-  if (gameOver) {
-    draw.gameOver();
+  if (gameClear || gameOver) {
+    score *= 100;
     startButton.disabled = false;
+    if (gameClear) {
+      draw.gameClear();
+    } else {
+      draw.gameOver();
+    }
   } else {
     requestAnimationFrame(lanchTheGame);
   }
@@ -226,6 +261,11 @@ function bricksCollision() {
       ) {
         ball.dy = -ball.dy;
         br.hp = 0;
+        score++;
+        if (score === brick.rowCount * brick.columnCount) {
+          gameClear = true;
+        }
+        return;
       }
     }
   }
