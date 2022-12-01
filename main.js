@@ -11,6 +11,7 @@ class Ball {
   x = canvas.width / 2;
   y = canvas.height / 2;
   radius = 10;
+  threshold = this.radius / 2;
   dx = 3;
   dy = 3;
 }
@@ -18,7 +19,7 @@ class Ball {
 class Paddle {
   height = 10;
   width = 75;
-  x = (canvas.width - 75) / 2
+  x = (canvas.width - this.width) / 2;
   dx = 6;
 }
 
@@ -38,12 +39,12 @@ const brick = {
       for (let c = 0; c < this.columnCount; c++) {
         const brickX = this.offsetLeft + c * (this.width + this.padding);
         const brickY = this.offsetTop + r * (this.height + this.padding);
-        list[r][c] = { x: brickX, y: brickY, hp: 1};
+        list[r][c] = { x: brickX, y: brickY, hp: 1 };
       }
     }
     return list;
-  }
-}
+  },
+};
 
 let ball = new Ball();
 let paddle = new Paddle();
@@ -73,9 +74,10 @@ const draw = {
 
   bricks() {
     for (const rows of bricks) {
-      for (const row of rows) {
+      for (const br of rows) {
+        if (br.hp === 0) continue;
         ctx.beginPath();
-        ctx.rect(row.x, row.y, brick.width, brick.height);
+        ctx.rect(br.x, br.y, brick.width, brick.height);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
         ctx.closePath();
@@ -162,6 +164,7 @@ function lanchTheGame() {
   draw.all();
   wallCollision();
   paddleCollision();
+  bricksCollision();
 
   ball.x += ball.dx;
   ball.y += ball.dy;
@@ -201,12 +204,29 @@ function wallCollision() {
 function paddleCollision() {
   if (ball.y + ball.radius >= canvas.height - paddle.height) {
     if (
-      paddle.x - ball.radius <= ball.x &&
-      ball.x <= paddle.x + paddle.width + ball.radius
+      paddle.x - ball.threshold <= ball.x &&
+      ball.x <= paddle.x + paddle.width + ball.threshold
     ) {
       ball.dy = -ball.dy;
     } else {
       gameOver = true;
+    }
+  }
+}
+
+function bricksCollision() {
+  for (const rows of bricks) {
+    for (const br of rows) {
+      if (br.hp === 0) continue;
+      if (
+        br.x - ball.threshold <= ball.x &&
+        ball.x <= br.x + brick.width + ball.threshold &&
+        br.y <= ball.y &&
+        ball.y <= br.y + brick.height + ball.threshold
+      ) {
+        ball.dy = -ball.dy;
+        br.hp = 0;
+      }
     }
   }
 }
