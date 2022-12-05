@@ -7,10 +7,25 @@
     <title>ブロック崩し</title>
   </head>
   <body>
-    <div class="container">
+    <div class="game-container">
       <canvas id="my-canvas">Game</canvas> 
-      <button id="start">スタート</button>
-    </div>
-    <script src="main.js"></script>
-  </body>
+      <div class="game-settings">
+        <button id="start-button">スタート</button>
+        <form name="game-form">
+          <fieldset>
+            <legend>ゲーム設定</legend>
+            <div>
+              <span>難易度</span>
+              <input type="radio" id="easy" name="difficulty" value="easy" checked>
+              <label for="easy">かんたん</label>
+              <input type="radio" id="normal" name="difficulty" value="normal">
+              <label for="easy">ふつう</label>
+              <input type="radio" id="hard" name="difficulty" value="hard">
+              <label for="easy">むずかしい</label>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+      <script src="main.js"></script>
+    </body>
 </html>

@@ -1,11 +1,23 @@
-.container {
+.game-container {
   width: fit-content;
   margin: 20px;
   text-align: right;
+}
+
+.game-settings {
+  margin-top: 20px;
+}
+
+.game-settings span {
+  margin-right: 15px;
 }
 
 #my-canvas {
   border: 1px solid;
   background-color: rgb(240, 240, 240);
   display: block;
+}
+
+#start-button {
+  margin-bottom: 5px;
 }

@@ -2,27 +2,41 @@ const canvas = document.getElementById("my-canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 480;
 canvas.height = 360;
-const startButton = document.getElementById("start");
 let rightPressed = false;
 let leftPressed = false;
 let score = 0;
-let gameOver = false;
+let difficulty = "easy";
 let gameClear = false;
+let gameOver = false;
 
 class Ball {
   x = canvas.width / 2;
-  y = canvas.height / 2;
+  y = canvas.height / 2 - 30;
   radius = 10;
   threshold = this.radius / 2;
-  dx = 3;
-  dy = 3;
+
+  constructor(difficulty) {
+    switch (difficulty) {
+      case "easy":
+        this.dx = 3;
+        this.dy = 4;
+        break;
+      case "normal":
+        this.dx = 4;
+        this.dy = 5;
+        break;
+      case "hard":
+        this.dx = 5;
+        this.dy = 6;
+    }
+  }
 }
 
 class Paddle {
   height = 10;
   width = 75;
   x = (canvas.width - this.width) / 2;
-  dx = 6;
+  dx = 7;
 }
 
 const brick = {
@@ -48,7 +62,7 @@ const brick = {
   },
 };
 
-let ball = new Ball();
+let ball = new Ball(difficulty);
 let paddle = new Paddle();
 let bricks = brick.list();
 
@@ -114,9 +128,9 @@ const draw = {
     this.shade();
     ctx.font = "50px fantasy";
     ctx.fillStyle = "#000000";
-    const text = ctx.measureText("Game Clear");
+    const text = ctx.measureText("Game Clear!");
     ctx.fillText(
-      "Game Clear",
+      "Game Clear!",
       (canvas.width - text.width) / 2,
       (canvas.height + 20) / 2,
       );
@@ -167,10 +181,13 @@ function keyUpHandler(e) {
 
 draw.shade();
 
+const startButton = document.getElementById("start-button");
 startButton.addEventListener("click", pressedStartButton);
 function pressedStartButton() {
   startButton.disabled = true;
-  ball = new Ball();
+  const formElements = document.forms["game-form"].elements;
+  difficulty = formElements["difficulty"].value;
+  ball = new Ball(difficulty);
   paddle = new Paddle();
   bricks = brick.list();
   score = 0;
@@ -212,7 +229,19 @@ function lanchTheGame() {
   }
 
   if (gameClear || gameOver) {
-    score *= 100;
+    let bonus;
+    switch (difficulty) {
+      case "easy":
+        bonus = 1.0;
+        break;
+      case "normal":
+        bonus = 1.5;
+        break;
+      case "hard":
+        bonus = 2.0;
+        break;
+    }
+    score *= 100 * bonus;
     startButton.disabled = false;
     if (gameClear) {
       draw.gameClear();
