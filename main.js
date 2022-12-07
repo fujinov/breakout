@@ -21,11 +21,11 @@ class Ball {
     switch (difficulty) {
       case "easy":
         this.dx = 3;
-        this.dy = 4;
+        this.dy = 5;
         break;
       case "normal":
         this.dx = 4;
-        this.dy = 5;
+        this.dy = 6;
         break;
       case "hard":
         this.dx = 5;
@@ -40,8 +40,8 @@ class Paddle {
   x = (canvas.width - this.width) / 2;
   dx = 7;
   hp = 2;
-  effect = false;
   color = "blue";
+  effect = false;
 
   colorCange() {
     this.color = (this.color === "blue") ? "red" : "blue";
@@ -77,8 +77,17 @@ const brick = {
       for (let c = 0; c < this.columnCount; c++) {
         const brickX = this.offsetLeft + c * (this.width + this.padding);
         const brickY = this.offsetTop + r * (this.height + this.padding);
-        const hitPoint = (mode == "general") ? 1 : 2;
-        list[r][c] = { x: brickX, y: brickY, hp: hitPoint };
+        let hitPoint;
+        let whichColors;
+        if (mode === "general") {
+          hitPoint = 1;
+          whichColors = "blue";
+        } else {
+          hitPoint = 2;
+          const zeroOrOne = Math.floor(Math.random() * 2);
+          whichColors = (zeroOrOne === 0) ? "blue" : "red";
+        }
+        list[r][c] = { x: brickX, y: brickY, hp: hitPoint, color: whichColors };
       }
     }
     return list;
@@ -121,7 +130,7 @@ const draw = {
         if (br.hp === 0) continue;
         ctx.beginPath();
         ctx.rect(br.x, br.y, brick.width, brick.height);
-        ctx.fillStyle = (br.hp === 1) ? "#0095DD" : "#fc5858";
+        ctx.fillStyle = (br.color === "blue") ? "#0095DD" : "#fc5858";
         ctx.fill();
         ctx.closePath();
       }
@@ -348,7 +357,8 @@ function bricksCollision() {
         ball.y <= br.y + brick.height + ball.threshold
       ) {
         ball.dy = -ball.dy;
-        ball.color = (br.hp === 2) ? "red" : "blue";
+        ball.color = br.color;
+        br.color = (br.color === "blue") ? "red" : "blue";
         br.hp--;
         score++;
         if (gameMode === "general") {
