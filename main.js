@@ -5,6 +5,7 @@ canvas.height = 360;
 let rightPressed = false;
 let leftPressed = false;
 let score = 0;
+let gameMode = "general";
 let difficulty = "easy";
 let gameClear = false;
 let gameOver = false;
@@ -14,6 +15,7 @@ class Ball {
   y = canvas.height / 2 - 30;
   radius = 10;
   threshold = this.radius / 2;
+  color = "blue";
 
   constructor(difficulty) {
     switch (difficulty) {
@@ -37,6 +39,12 @@ class Paddle {
   width = 75;
   x = (canvas.width - this.width) / 2;
   dx = 7;
+  hp = 2;
+  color = "blue";
+
+  colorCange() {
+    this.color = (this.color === "blue") ? "red" : "blue";
+  }
 }
 
 const brick = {
@@ -48,14 +56,15 @@ const brick = {
   offsetTop: 30,
   offsetLeft: 30,
 
-  list() {
+  list(mode) {
     const list = [];
     for (let r = 0; r < this.rowCount; r++) {
       list[r] = [];
       for (let c = 0; c < this.columnCount; c++) {
         const brickX = this.offsetLeft + c * (this.width + this.padding);
         const brickY = this.offsetTop + r * (this.height + this.padding);
-        list[r][c] = { x: brickX, y: brickY, hp: 1 };
+        const hitPoint = (mode == "general") ? 1 : 2;
+        list[r][c] = { x: brickX, y: brickY, hp: hitPoint };
       }
     }
     return list;
@@ -64,13 +73,13 @@ const brick = {
 
 let ball = new Ball(difficulty);
 let paddle = new Paddle();
-let bricks = brick.list();
+let bricks = brick.list(gameMode);
 
 const draw = {
   ball() {
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = (ball.color === "blue") ? "#0095DD" : "#fc5858";
     ctx.fill();
     ctx.closePath();
   },
@@ -83,7 +92,7 @@ const draw = {
       paddle.width,
       paddle.height,
     );
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = (paddle.color === "blue") ? "#0095DD" : "#fc5858";
     ctx.fill();
     ctx.closePath();
   },
@@ -94,11 +103,30 @@ const draw = {
         if (br.hp === 0) continue;
         ctx.beginPath();
         ctx.rect(br.x, br.y, brick.width, brick.height);
-        ctx.fillStyle = "#0095DD";
+        ctx.fillStyle = (br.hp === 1) ? "#0095DD" : "#fc5858";
         ctx.fill();
         ctx.closePath();
       }
     }
+  },
+
+  paddleHeart() {
+    ctx.font = "22px emoji";
+    ctx.fillStyle = "#ff0000";
+    let heart;
+    switch (paddle.hp) {
+      case 0:
+        heart = "";
+        break;
+      case 1:
+        heart = "❤";
+        break;
+      case 2:
+        heart = "❤❤";
+        break; 
+    }
+    const text = ctx.measureText(heart);
+    ctx.fillText(heart, canvas.width - text.width - 5, 22);
   },
 
   all() {
@@ -106,6 +134,7 @@ const draw = {
     this.ball();
     this.paddle();
     this.bricks();
+    if (gameMode === "color") this.paddleHeart();
   },
 
   shade() {
@@ -170,6 +199,9 @@ function keyDownHandler(e) {
   } else if (e.key == "Left" || e.key == "ArrowLeft") {
     leftPressed = true;
   }
+  if (gameMode === "color" && e.key == " ") {
+    paddle.colorCange();
+  }
 }
 function keyUpHandler(e) {
   if (e.key == "Right" || e.key == "ArrowRight") {
@@ -187,9 +219,10 @@ function pressedStartButton() {
   startButton.disabled = true;
   const formElements = document.forms["game-form"].elements;
   difficulty = formElements["difficulty"].value;
+  gameMode = formElements["mode"].value;
   ball = new Ball(difficulty);
-  paddle = new Paddle();
-  bricks = brick.list();
+  paddle = new Paddle(gameMode);
+  bricks = brick.list(gameMode);
   score = 0;
   gameClear = false;
   gameOver = false;
@@ -215,6 +248,7 @@ function lanchTheGame() {
 
   ball.x += ball.dx;
   ball.y += ball.dy;
+
   if (rightPressed) {
     paddle.x += paddle.dx;
     if (paddle.x + paddle.width > canvas.width) {
@@ -272,6 +306,12 @@ function paddleCollision() {
       ball.x <= paddle.x + paddle.width + ball.threshold
     ) {
       ball.dy = -ball.dy;
+      if (ball.color !== paddle.color) {
+        paddle.hp--;
+        if (paddle.hp === 0) {
+          gameOver = true;
+        }
+      }
     } else {
       gameOver = true;
     }
@@ -289,10 +329,18 @@ function bricksCollision() {
         ball.y <= br.y + brick.height + ball.threshold
       ) {
         ball.dy = -ball.dy;
-        br.hp = 0;
+        ball.color = (br.hp === 2) ? "red" : "blue";
+        br.hp--;
         score++;
-        if (score === brick.rowCount * brick.columnCount) {
-          gameClear = true;
+        if (gameMode === "general") {
+          if (score === brick.rowCount * brick.columnCount) {
+            gameClear = true;
+          }
+        }
+        else {
+          if (score === brick.rowCount * brick.columnCount * 2) {
+            gameClear = true;
+          } 
         }
         return;
       }
