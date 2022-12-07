@@ -40,10 +40,24 @@ class Paddle {
   x = (canvas.width - this.width) / 2;
   dx = 7;
   hp = 2;
+  effect = false;
   color = "blue";
 
   colorCange() {
     this.color = (this.color === "blue") ? "red" : "blue";
+  }
+
+  damageEffect() {
+    this.effect = true;
+    setTimeout(() => {
+      this.effect = false;
+    }, 100);
+    setTimeout(() => {
+      this.effect = true;
+    }, 200);
+    setTimeout(() => {
+      this.effect = false;
+    }, 300);
   }
 }
 
@@ -92,7 +106,11 @@ const draw = {
       paddle.width,
       paddle.height,
     );
-    ctx.fillStyle = (paddle.color === "blue") ? "#0095DD" : "#fc5858";
+    if (paddle.effect) {
+      ctx.fillStyle = "#f0d0d0";
+    } else {
+      ctx.fillStyle = (paddle.color === "blue") ? "#0095DD" : "#fc5858";
+    }
     ctx.fill();
     ctx.closePath();
   },
@@ -123,7 +141,7 @@ const draw = {
         break;
       case 2:
         heart = "❤❤";
-        break; 
+        break;
     }
     const text = ctx.measureText(heart);
     ctx.fillText(heart, canvas.width - text.width - 5, 22);
@@ -162,11 +180,11 @@ const draw = {
       "Game Clear!",
       (canvas.width - text.width) / 2,
       (canvas.height + 20) / 2,
-      );
-      this._score("#ff0000");
-    },
-    
-    gameOver() {
+    );
+    this._score("#ff0000");
+  },
+
+  gameOver() {
     this.shade();
     ctx.font = "40px fantasy";
     ctx.fillStyle = "#ff0000";
@@ -194,19 +212,19 @@ const draw = {
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 function keyDownHandler(e) {
-  if (e.key == "Right" || e.key == "ArrowRight") {
+  if (e.key === "Right" || e.key === "ArrowRight") {
     rightPressed = true;
-  } else if (e.key == "Left" || e.key == "ArrowLeft") {
+  } else if (e.key === "Left" || e.key === "ArrowLeft") {
     leftPressed = true;
   }
-  if (gameMode === "color" && e.key == " ") {
+  if (gameMode === "color" && e.key === " ") {
     paddle.colorCange();
   }
 }
 function keyUpHandler(e) {
-  if (e.key == "Right" || e.key == "ArrowRight") {
+  if (e.key === "Right" || e.key === "ArrowRight") {
     rightPressed = false;
-  } else if (e.key == "Left" || e.key == "ArrowLeft") {
+  } else if (e.key === "Left" || e.key === "ArrowLeft") {
     leftPressed = false;
   }
 }
@@ -307,6 +325,7 @@ function paddleCollision() {
     ) {
       ball.dy = -ball.dy;
       if (ball.color !== paddle.color) {
+        paddle.damageEffect();
         paddle.hp--;
         if (paddle.hp === 0) {
           gameOver = true;
@@ -336,11 +355,10 @@ function bricksCollision() {
           if (score === brick.rowCount * brick.columnCount) {
             gameClear = true;
           }
-        }
-        else {
+        } else {
           if (score === brick.rowCount * brick.columnCount * 2) {
             gameClear = true;
-          } 
+          }
         }
         return;
       }
