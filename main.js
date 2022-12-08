@@ -4,6 +4,7 @@ canvas.width = 480;
 canvas.height = 360;
 let rightPressed = false;
 let leftPressed = false;
+let spacePressed = false;
 let score = 0;
 let gameMode = "general";
 let difficulty = "easy";
@@ -43,10 +44,6 @@ class Paddle {
   color = "blue";
   effect = false;
 
-  colorCange() {
-    this.color = (this.color === "blue") ? "red" : "blue";
-  }
-
   damageEffect() {
     this.effect = true;
     setTimeout(() => {
@@ -62,7 +59,7 @@ class Paddle {
 }
 
 const brick = {
-  rowCount: 3,
+  rowCount: 4,
   columnCount: 5,
   width: 75,
   height: 20,
@@ -183,7 +180,7 @@ const draw = {
   gameClear() {
     this.shade();
     ctx.font = "50px fantasy";
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "#1da1fa";
     const text = ctx.measureText("Game Clear!");
     ctx.fillText(
       "Game Clear!",
@@ -227,7 +224,7 @@ function keyDownHandler(e) {
     leftPressed = true;
   }
   if (gameMode === "color" && e.key === " ") {
-    paddle.colorCange();
+    spacePressed = true;
   }
 }
 function keyUpHandler(e) {
@@ -235,6 +232,9 @@ function keyUpHandler(e) {
     rightPressed = false;
   } else if (e.key === "Left" || e.key === "ArrowLeft") {
     leftPressed = false;
+  }
+  if (gameMode === "color" && e.key === " ") {
+    spacePressed = false;
   }
 }
 
@@ -288,6 +288,11 @@ function lanchTheGame() {
       paddle.x = 0;
     }
   }
+  if (spacePressed) {
+    paddle.color = "red";
+  } else {
+    paddle.color = "blue";
+  }
 
   if (gameClear || gameOver) {
     let bonus;
@@ -303,12 +308,15 @@ function lanchTheGame() {
         break;
     }
     score *= 100 * bonus;
-    startButton.disabled = false;
     if (gameClear) {
       draw.gameClear();
     } else {
       draw.gameOver();
     }
+    setTimeout(() => {
+      startButton.disabled = false;
+      startButton.focus();
+    }, 800);
   } else {
     requestAnimationFrame(lanchTheGame);
   }
