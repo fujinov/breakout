@@ -244,6 +244,9 @@ const startButton = document.getElementById("start-button");
 startButton.addEventListener("click", pressedStartButton);
 function pressedStartButton() {
   startButton.disabled = true;
+  const explain = document.getElementsByClassName("game-explain")[0];
+  explain.style.display = "none";
+
   const formElements = document.forms["game-form"].elements;
   difficulty = formElements["difficulty"].value;
   gameMode = formElements["mode"].value;
