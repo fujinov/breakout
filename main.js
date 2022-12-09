@@ -4,7 +4,7 @@ canvas.width = 480;
 canvas.height = 360;
 let rightPressed = false;
 let leftPressed = false;
-let spacePressed = false;
+let shiftPressed = false;
 let score = 0;
 let gameMode = "general";
 let difficulty = "easy";
@@ -223,8 +223,8 @@ function keyDownHandler(e) {
   } else if (e.key === "Left" || e.key === "ArrowLeft") {
     leftPressed = true;
   }
-  if (gameMode === "color" && e.key === " ") {
-    spacePressed = true;
+  if (gameMode === "color" && e.key === "Shift") {
+    shiftPressed = true;
   }
 }
 function keyUpHandler(e) {
@@ -233,8 +233,8 @@ function keyUpHandler(e) {
   } else if (e.key === "Left" || e.key === "ArrowLeft") {
     leftPressed = false;
   }
-  if (gameMode === "color" && e.key === " ") {
-    spacePressed = false;
+  if (gameMode === "color" && e.key === "Shift") {
+    shiftPressed = false;
   }
 }
 
@@ -291,7 +291,7 @@ function lanchTheGame() {
       paddle.x = 0;
     }
   }
-  if (spacePressed) {
+  if (shiftPressed) {
     paddle.color = "red";
   } else {
     paddle.color = "blue";
